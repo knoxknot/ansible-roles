@@ -1,0 +1,7 @@
+- name: Configure the Machine
+  hosts: machine
+  become: true
+  become_method: sudo
+  roles:
+    - docker
+    - go
