@@ -5,3 +5,7 @@
   roles:
     - docker
     - go
+    - packer 
+    - terraform 
+    - vagrant 
+    
