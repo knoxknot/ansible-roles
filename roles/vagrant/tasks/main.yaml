@@ -1,0 +1,11 @@
+---
+- name: Uninstall Existing Vagrant
+  apt:
+    name: vagrant==1.8.5
+    state: absent
+    autoremove: yes
+
+- name: Install Vagrant
+  apt:
+    deb:  https://releases.hashicorp.com/vagrant/{{vagrant_version}}/vagrant_{{vagrant_version}}_{{ansible_architecture}}.deb
+    update_cache: yes
