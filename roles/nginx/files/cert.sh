@@ -1,0 +1,1 @@
+openssl req -newkey rsa:2048 -nodes -keyout /etc/nginx/ssl/192.168.10.1.key -x509 -days 365 -out /etc/nginx/ssl/192.168.10.1.crt -subj "/C=COUNTRY_CODE/ST=STATE/L=CITY/O=ORGANIZATION/OU=DEPARTMENT/CN=192.168.10.1" 
