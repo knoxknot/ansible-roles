@@ -1,0 +1,6 @@
+- name: Install Minikube
+  unarchive:
+    src: https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+    dest: /usr/local/bin/minikube
+    remote_src: yes  
+    state: present
