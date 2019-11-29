@@ -1,0 +1,21 @@
+server {
+  listen 80;
+  server_name 192.168.10.1;
+  return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name 192.168.10.1;
+
+    root {{ansible_env.HOME}}/;
+
+    ssl_certificate /etc/nginx/ssl/{{ ansible_host }}.crt;
+    ssl_certificate_key /etc/nginx/ssl/{{ ansible_host}}.key;
+    ssl_ciphers 'EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:EECDH+ECDSA+SHA384:EECDH+ECDSA+SHA256:EECDH+aRSA+SHA384:EECDH+aRSA+SHA256:EECDH+aRSA+RC4:EECDH:EDH+aRSA:!aNULL:!eNULL:!LOW:!3DES:!MD5:!EXP:!PSK:!SRP:!DSS:!RC4';   
+
+    location / {
+      include proxy_params;
+      try_files $uri $uri/ =404;
+    }    
+}
