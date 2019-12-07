@@ -1,2 +1,1 @@
-#*.sh linguist-language=YAML
 *.yaml linguist-detectable=true
