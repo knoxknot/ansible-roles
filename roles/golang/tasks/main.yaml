@@ -1,0 +1,28 @@
+---
+- name: Create Directories
+  file:
+    path: "{{ item }}" 
+    state: directory
+    mode: 0755
+    owner: vagrant
+  with_items:
+    - [ "/home/vagrant/golibs/bin" , "/home/vagrant/golibs/src" , "/home/vagrant/golibs/pkg" ]
+    - [ "/home/vagrant/goprojects/bin" , "/home/vagrant/goprojects/src" , "/home/vagrant/goprojects/pkg" ]
+
+- name: Install Go
+  unarchive:
+    src: https://dl.google.com/go/go1.12.6.linux-amd64.tar.gz
+    dest: /usr/local/
+    remote_src: yes
+
+- name: Append the Go Environment to .profile
+  blockinfile:
+    dest: /home/vagrant/.profile
+    content: |
+      # Go environment settings
+      export PATH=$PATH:/usr/local/go/bin
+
+      # Go libs and projects settings
+      export GOPATH=$HOME/golibs
+      export PATH=$PATH:$GOPATH/bin
+      export GOPATH=$GOPATH:$HOME/goprojects
