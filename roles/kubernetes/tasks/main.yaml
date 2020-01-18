@@ -1,0 +1,32 @@
+---
+- name: Install Kuberenetes Key
+  apt_key: 
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg  
+    state: present
+
+- name: Add Kuberenetes Source Repo
+  apt_repository: 
+    repo: deb http://apt.kubernetes.io/ kubernetes-{{ansible_lsb.codename}} main  
+    state: present
+    update_cache: yes
+
+- name: Install Required Packages
+  apt: 
+    name: ['kubeadm=1.16.0-00', 'kubectl=1.16.0-00', 'kubelet=1.16.0-00', 'kubernetes-cni' ]
+    state: present
+
+- name: Create the Kube Directory
+  file:
+    path: /home/vagrant/.kube
+    state: directory
+    mode: 0755
+    owner: vagrant
+
+- name: Remove Swapfile from /etc/fstab
+  mount:
+    name: swap
+    fstype: swap
+    state: absent
+
+- name: Disable Swap
+  command: swapoff -a
