@@ -1,0 +1,19 @@
+---
+- name: Install Mongo Key
+  apt_key: 
+    url: https://www.mongodb.org/static/pgp/server-3.6.asc 
+    state: present
+
+- name: Add Mongo Source Repo
+  apt_repository: 
+    repo: deb [arch=amd64] https://repo.mongodb.org/apt/ubuntu {{ansible_lsb.codename}}/mongodb-org/3.6 multiverse 
+    state: present
+
+- name: Update Apt Cache
+  apt: 
+    update_cache: yes
+
+- name: Install Mongo
+  apt:
+    name: mongodb-org=3.6.16
+  notify: Start Mongo
