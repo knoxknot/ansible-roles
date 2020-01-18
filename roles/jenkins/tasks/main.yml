@@ -1,0 +1,32 @@
+---
+- name: Install Jenkins Key
+  apt_key: 
+   url: https://pkg.jenkins.io/debian/jenkins.io.key  
+   state: present
+
+- name: Add Jenkins Source Repo
+  apt_repository: 
+   repo: deb https://pkg.jenkins.io/debian-stable binary/  
+   state: present
+
+- name: Update Apt Cache
+  apt: 
+   update_cache: yes
+
+- name: Install Jenkins Dependencies - Java Runtime Environment
+  apt: 
+   name: 'default-jre'
+   state: present
+
+- name: Install Jenkins
+  apt: 
+   name: 'jenkins'
+   state: present
+  notify: Start Jenkins
+
+- name: Configure Jenkins to Listen on Localhost Only
+  lineinfile:
+    path: /etc/default/jenkins
+    regexp: '^JENKINS_ARGS='
+    line: 'JENKINS_ARGS="--webroot=/var/cache/$NAME/war --httpPort=$HTTP_PORT --httpListenAddress=127.0.0.1"'
+  notify: Restart Jenkins
