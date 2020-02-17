@@ -1,0 +1,9 @@
+---
+- name: Install Docker Compose
+  command: curl -L https://github.com/docker/compose/releases/download/{{docker_compose_version}}/docker-compose-{{ansible_kernel}}-{{ansible_architecture}} -o /usr/local/bin/docker-compose
+
+- name: Change Permission
+  command: chmod +x /usr/local/bin/docker-compose
+
+  
+
