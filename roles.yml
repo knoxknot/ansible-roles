@@ -1,0 +1,12 @@
+- name: Configure the Machine
+  hosts: localhost    # replace with hostname
+  become: true
+  become_method: sudo
+  roles:
+    - utils
+    - docker
+    - docker-compose
+    - golang
+    - packer 
+    - terraform 
+    - vagrant 
