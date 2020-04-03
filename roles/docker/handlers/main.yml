@@ -1,3 +1,9 @@
+# Stop Services
+- name: Stop Docker
+  service:  
+    name: docker 
+    state: stopped 
+
 # Start Services
 - name: Start Docker
   service:  

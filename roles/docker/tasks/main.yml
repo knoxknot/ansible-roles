@@ -15,7 +15,7 @@
 
 - name: Install Docker
   apt:
-   name: docker-ce=5:18.09.1~3-0~ubuntu-xenial
+   name: docker-ce=5:18.09.1~3-0~ubuntu-{{ansible_lsb.codename}}
   notify: Start Docker
 
 - name: Configure Docker to Use Systemd
