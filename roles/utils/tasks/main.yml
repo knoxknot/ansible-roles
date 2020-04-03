@@ -1,5 +1,5 @@
 ---
-- name: Install Requisite packages
+- name: Install Requisite Packages
   apt:
     name: ['apt-transport-https', 'ca-certificates', 'curl', 'git', 'software-properties-common']
     state: present
