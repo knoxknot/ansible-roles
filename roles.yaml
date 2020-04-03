@@ -1,11 +1,12 @@
 - name: Configure the Machine
-  hosts: machine
+  hosts: all
   become: true
   become_method: sudo
   roles:
+    - utils
     - docker
-    - go
+    - docker-compose
+    - golang
     - packer 
     - terraform 
     - vagrant 
-    
