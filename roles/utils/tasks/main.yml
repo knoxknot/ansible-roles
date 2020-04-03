@@ -1,0 +1,15 @@
+---
+- name: Install Requisite packages
+  apt:
+    name: ['apt-transport-https', 'ca-certificates', 'curl', 'git', 'software-properties-common']
+    state: present
+    update_cache: yes
+
+- name: Add User to Existing Groups
+  user:
+    name: "{{ansible_user}}"
+    shell: /bin/bash
+    groups:
+      - sudo    
+    append: yes
+    state: present
