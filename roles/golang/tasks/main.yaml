@@ -1,23 +1,32 @@
 ---
+- set_fact:
+    parent_directory:
+    - "golibs"
+    - "goprojects"
+    sub_directories:
+    - "bin"
+    - "src"
+    - "pkg"
+
 - name: Create Directories
   file:
-    path: "{{ item }}" 
+    path: "{{ ansible_env.PWD }}/{{item.0}}/{{item.1}}" 
     state: directory
     mode: 0755
-    owner: vagrant
-  with_items:
-    - [ "/home/vagrant/golibs/bin" , "/home/vagrant/golibs/src" , "/home/vagrant/golibs/pkg" ]
-    - [ "/home/vagrant/goprojects/bin" , "/home/vagrant/goprojects/src" , "/home/vagrant/goprojects/pkg" ]
+    owner:  "{{ansible_user}}"
+  with_nested:
+  - "{{ parent_directory }}"
+  - "{{ sub_directories }}"
 
 - name: Install Go
   unarchive:
-    src: https://dl.google.com/go/go1.12.6.linux-amd64.tar.gz
+    src: https://dl.google.com/go/go1.14.1.linux-amd64.tar.gz
     dest: /usr/local/
     remote_src: yes
 
 - name: Append the Go Environment to .profile
   blockinfile:
-    dest: /home/vagrant/.profile
+    dest: "{{ansible_env.PWD}}/.profile"
     content: |
       # Go environment settings
       export PATH=$PATH:/usr/local/go/bin
