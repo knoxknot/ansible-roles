@@ -1,0 +1,24 @@
+---
+# Reload Daemon
+- name: Reload Daemon
+  systemd:  
+    daemon_reload: yes
+    
+# Stop Services
+- name: Stop Jenkins
+  service:  
+    name: jenkins 
+    state: stopped
+
+# Start Services
+- name: Start Jenkins
+  service:  
+    name: jenkins 
+    state: started 
+    enabled: yes
+
+# Restart Services
+- name: Restart Jenkins
+  service:  
+    name: jenkins 
+    state: restarted 

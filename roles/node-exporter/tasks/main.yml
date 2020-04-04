@@ -1,0 +1,52 @@
+- name: Create Node Exporter System Group 
+  group:
+    name: node_exporter
+    system: yes
+    state: present
+
+- name: Add Node Exporter User to Node Exporter Group
+  user:
+    name: node_exporter
+    shell: /sbin/nologin
+    system: yes
+    groups:
+      - node_exporter  
+    append: yes
+    create_home: no
+    state: present
+
+- name: Install node_exporter
+  unarchive:
+    src: https://github.com/prometheus/node_exporter/releases/download/v{{RELEASE}}/node_exporter-{{RELEASE}}.linux-amd64.tar.gz
+    dest: "/tmp"
+    remote_src: yes
+  run_once: yes
+
+- name: Transfer node_exporter Executables to Bin
+  copy:
+    src: "/tmp/node_exporter-{{RELEASE}}.linux-amd64/{{item}}"
+    dest: /usr/local/bin/
+    remote_src: yes
+    mode: '0775'
+    owner: node_exporter
+    group: node_exporter
+  loop:
+   - node_exporter 
+  
+- name: Open Ports
+  ufw:
+    rule: allow
+    proto: tcp
+    port: '9100'
+  
+- name: Configure Node Exporter Service
+  template:
+    src: node_exporter.service.j2
+    dest: /etc/systemd/system/node_exporter.service
+    owner: node_exporter
+    group: node_exporter
+  notify:
+    - Start Node Exporter
+    - Restart Node Exporter
+
+  

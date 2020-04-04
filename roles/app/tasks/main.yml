@@ -1,0 +1,14 @@
+---
+- name: Remove Existing Files in Folder
+  file:
+    path: /usr/share/nginx/html/
+    state: absent
+    
+- name: Deploy the Application
+  git: 
+    # repo: https://project.git
+    dest: /usr/share/nginx/html
+    #version: "{{ lookup('env','RELEASE_TAG') }}" #release-0.22
+  changed_when: true
+  notify:
+    - Reload Daemon

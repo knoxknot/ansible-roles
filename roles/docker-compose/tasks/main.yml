@@ -4,6 +4,3 @@
     url: https://github.com/docker/compose/releases/download/{{docker_compose_version}}/docker-compose-{{ansible_kernel}}-{{ansible_architecture}}
     dest: /usr/local/bin/
     mode: '0777'
-
-  
-

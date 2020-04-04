@@ -1,5 +1,6 @@
 ---
-- set_fact:
+- name: Set Directory Names
+  set_fact:
     parent_directory:
     - "golibs"
     - "goprojects"
@@ -12,8 +13,8 @@
   file:
     path: "{{ ansible_env.PWD }}/{{item.0}}/{{item.1}}" 
     state: directory
-    mode: 0755
-    owner:  "{{ansible_user}}"
+    mode: '0775'
+    owner: "{{ansible_user}}"
   with_nested:
   - "{{ parent_directory }}"
   - "{{ sub_directories }}"

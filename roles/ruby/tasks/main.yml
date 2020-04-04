@@ -1,13 +1,15 @@
 ---
 - name: Install Package and its Dependencies
   apt: 
-   name: 'ruby2.3'
+   name: ['ruby2.3', 'build-essential'] 
    state: present
+   force_apt_get: yes
+   update_cache: yes
 
 - name: Install Gem Required Packages
   gem: 
-   name: "{{item}}"
+   name: serverspec
    state: present
-  with_items:
-    - deb-s3
-    - serverspec
+
+
+    

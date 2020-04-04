@@ -3,15 +3,12 @@
   apt_key: 
    url: https://pkg.jenkins.io/debian/jenkins.io.key  
    state: present
+  run_once: yes
 
 - name: Add Jenkins Source Repo
   apt_repository: 
    repo: deb https://pkg.jenkins.io/debian-stable binary/  
-   state: present
-
-- name: Update Apt Cache
-  apt: 
-   update_cache: yes
+   state: present  
 
 - name: Install Jenkins Dependencies - Java Runtime Environment
   apt: 
@@ -22,11 +19,102 @@
   apt: 
    name: 'jenkins'
    state: present
-  notify: Start Jenkins
+  notify: Stop Jenkins
 
-- name: Configure Jenkins to Listen on Localhost Only
+- name: Open Ports
+  ufw:
+    rule: allow
+    proto: tcp
+    port: "{{item}}"
+  loop:
+    - 8443
+
+- name: Create Groovy Init Directory
+  file: 
+    path: /var/lib/jenkins/init.groovy.d
+    owner: jenkins
+    group: jenkins
+    mode: '0751'
+    state: directory
+  
+- name: Add Jenkins Initialization Script
+  template: 
+    src: "{{item.src}}"
+    dest: "/var/lib/jenkins/init.groovy.d/{{item.dest}}"
+    owner: jenkins
+    group: jenkins
+    mode: '0751'
+  loop:
+    - {src: 'security.groovy.j2', dest: 'security.groovy'}
+  notify: 
+    - Start Jenkins
+
+- name: Configure Jenkins
   lineinfile:
     path: /etc/default/jenkins
-    regexp: '^JENKINS_ARGS='
-    line: 'JENKINS_ARGS="--webroot=/var/cache/$NAME/war --httpPort=$HTTP_PORT --httpListenAddress=127.0.0.1"'
-  notify: Restart Jenkins
+    regexp: "{{item.regexp}}"
+    line: "{{item.line}}"
+  loop:
+   - {regexp: '^JENKINS_ARGS=', line: 'JENKINS_ARGS="--webroot=/var/cache/$NAME/war --httpPort=$HTTP_PORT --httpListenAddress=127.0.0.1"'}
+   - {regexp: '^JENKINS_JAVA_OPTIONS=', line: 'JENKINS_JAVA_OPTIONS="-Djenkins.install.runSetupWizard=false"'}
+   - {regexp: '^JAVA_ARGS=', line: 'JAVA_ARGS="-Djava.awt.headless=true -Dhudson.security.csrf.DefaultCrumbIssuer.EXCLUDE_SESSION_ID=true"'}
+  notify: 
+    - Restart Jenkins
+    - Reload Daemon
+
+- name: Wait for Jenkins to Start Up
+  uri:
+    url: https://192.168.255.9
+    status_code: '200'
+    user: "{{ jenkins_admin.username}}" 
+    password: "{{ jenkins_admin.password }}"
+    timeout: 5
+    force_basic_auth: yes
+    validate_certs: false
+  register: jenkins_service_status
+  retries: 10
+  delay: 5
+  until: >
+     'status' in jenkins_service_status and
+     jenkins_service_status['status'] == 200
+
+- name: Check Jenkins Status
+  debug:
+    msg: "Jenkins status: {{ jenkins_service_status['status'] }}"
+
+- name: List Installed Plugin for Untrusted HTTPS Connection
+  jenkins_script:
+    script: "println(Jenkins.instance.pluginManager.plugins)"
+    user: "{{ jenkins_admin.username}}" 
+    password: "{{ jenkins_admin.password }}"
+    url: http://localhost:8080
+    validate_certs: no
+
+- name: Install Jenkins Plugins
+  jenkins_plugin:
+    name: "{{item}}"
+    url:  http://localhost:8080
+    url_username: "{{ jenkins_admin.username}}" 
+    url_password: "{{ jenkins_admin.password }}"
+    force_basic_auth: yes
+    validate_certs: no
+    timeout: '120' 
+    state: latest
+  loop: "{{jenkins_plugins}}"
+  when: jenkins_service_status['status'] == 200
+  register: plugin_result
+  until: plugin_result is success
+  retries: 5
+  delay: 2
+  notify: 
+    - Restart Jenkins
+
+- name: Configure Nginx Proxy for Jenkins 
+  template:
+    src: "{{item.src}}"
+    dest: "/etc/nginx/conf.d/{{item.dest}}"
+  loop:
+    - {src: 'jenkins.conf.j2', dest: 'jenkins.conf'}
+  notify:
+    - Restart Nginx 
+

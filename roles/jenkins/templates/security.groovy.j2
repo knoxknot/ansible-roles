@@ -1,0 +1,37 @@
+#!groovy
+import java.util.logging.Level
+import java.util.logging.Logger
+import hudson.security.*
+import jenkins.model.*
+import hudson.security.csrf.DefaultCrumbIssuer
+
+def instance = Jenkins.getInstance()
+def logger = Logger.getLogger(Jenkins.class.getName())
+def hudsonRealm = new HudsonPrivateSecurityRealm(false)
+def users = hudsonRealm.getAllUsers()
+instance.setCrumbIssuer(new DefaultCrumbIssuer(true))
+instance.save()
+users_s = users.collect { it.toString() } 
+
+logger.log(Level.INFO, "Ensuring that local user '{{ jenkins_admin.username }}' is created.")
+
+// Create the admin user account if it doesn't already exist.
+if ("{{ jenkins_admin.username }}" in users_s) {
+    println "Admin user already exists - updating password"
+
+    def user = hudson.model.User.get('{{ jenkins_admin.username }}');
+    def password = hudson.security.HudsonPrivateSecurityRealm.Details.fromPlainPassword('{{ jenkins_admin.password }}')
+    user.addProperty(password)
+    user.save()
+}
+else {
+    println "--> creating local admin user"
+
+    hudsonRealm.createAccount('{{ jenkins_admin.username }}', '{{ jenkins_admin.password }}')
+    instance.setSecurityRealm(hudsonRealm)
+
+    def strategy = new FullControlOnceLoggedInAuthorizationStrategy()
+    strategy.setAllowAnonymousRead(false)
+    instance.setAuthorizationStrategy(strategy)
+    instance.save()
+}

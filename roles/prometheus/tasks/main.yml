@@ -1,0 +1,99 @@
+- name: Create Prometheus System Group 
+  group:
+    name: prometheus
+    system: yes
+    state: present
+
+- name: Add Prometheus User to Prometheus Group
+  user:
+    name: prometheus
+    shell: /sbin/nologin
+    system: yes
+    groups:
+      - prometheus  
+    append: yes
+    create_home: no
+    state: present 
+
+- name: Define Names of Directories to Create
+  set_fact:
+    configuration_directories:
+    - "rules"
+    - "rules.d"
+    - "files_sd"
+
+- name: Create Prometheus Configuration Directories
+  file:
+    path: "/etc/prometheus/{{item}}"
+    state: directory
+    mode: '0775'
+    owner: prometheus
+    group: prometheus
+  with_items:
+   - "{{ configuration_directories }}"
+
+- name: Create Prometheus Data Directories
+  file:
+    path: "{{item}}"
+    mode: '0775'
+    owner: prometheus
+    group: prometheus
+    state: directory
+  loop:
+   - "/var/lib/prometheus"
+
+# - name: Install Prometheus
+#   unarchive:
+#     src: https://github.com/prometheus/prometheus/releases/download/v{{RELEASE}}/prometheus-{{RELEASE}}.linux-amd64.tar.gz
+#     dest: "/tmp"
+#     remote_src: yes
+#   run_once: yes
+
+- name: Transfer Prometheus Executables to Bin
+  copy:
+    src: "/tmp/prometheus-{{RELEASE}}.linux-amd64/{{item}}"
+    dest: /usr/local/bin/
+    remote_src: yes
+    mode: '0775'
+    owner: prometheus
+    group: prometheus
+  loop:
+   - prometheus 
+   - promtool
+  
+- name: Transfer Prometheus Configs to Configuration
+  copy:
+    src: "/tmp/prometheus-{{RELEASE}}.linux-amd64/{{item}}"
+    dest: /etc/prometheus/
+    remote_src: yes
+    owner: prometheus
+    group: prometheus
+  loop:
+   - consoles 
+   - console_libraries
+
+- name: Open Ports
+  ufw:
+    rule: allow
+    proto: tcp
+    port: '9090'
+   
+- name: Configure Prometheus Rules
+  template:
+    src: prometheus.yml.j2
+    dest: /etc/prometheus/prometheus.yml
+    owner: prometheus
+    group: prometheus
+
+- name: Configure Prometheus Service
+  template:
+    src: prometheus.service.j2
+    dest: /etc/systemd/system/prometheus.service
+    owner: prometheus
+    group: prometheus
+  notify:
+    - Start Prometheus
+    - Restart Prometheus
+    - Reload Daemon
+
+  

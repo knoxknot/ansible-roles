@@ -1,21 +1,21 @@
 # Stop Services
-- name: Stop Docker
+- name: Stop Prometheus
   service:  
-    name: docker 
+    name: prometheus 
     state: stopped 
 
 # Start Services
-- name: Start Docker
+- name: Start Prometheus
   service:  
-    name: docker 
+    name: prometheus 
     state: started 
     enabled: yes
 
 # Restart Services
-- name: Restart Docker
+- name: Restart Prometheus
   service:  
-    name: docker 
-    state: restarted 
+    name: prometheus  
+    state: restarted
 
 # Reload Daemon
 - name: Reload Daemon

@@ -1,21 +1,21 @@
 # Stop Services
-- name: Stop Docker
+- name: Stop Grafana
   service:  
-    name: docker 
+    name: grafana-server 
     state: stopped 
 
 # Start Services
-- name: Start Docker
+- name: Start Grafana
   service:  
-    name: docker 
+    name: grafana-server 
     state: started 
     enabled: yes
 
 # Restart Services
-- name: Restart Docker
+- name: Restart Grafana
   service:  
-    name: docker 
-    state: restarted 
+    name: grafana-server
+    state: restarted
 
 # Reload Daemon
 - name: Reload Daemon
