@@ -1,3 +1,10 @@
+---
+# Start Services
+- name: Stop Mongo
+  service:  
+    name: mongod 
+    state: stopped 
+
 # Start Services
 - name: Start Mongo
   service:  

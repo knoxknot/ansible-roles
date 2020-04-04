@@ -12,15 +12,16 @@
 
 - name: Install Required Packages
   apt: 
-    name: ['kubeadm=1.16.0-00', 'kubectl=1.16.0-00', 'kubelet=1.16.0-00', 'kubernetes-cni' ]
+    name: "{{apt_packages_with_version}}"
     state: present
 
 - name: Create the Kube Directory
   file:
-    path: /home/vagrant/.kube
+    path: "{{ansible_env.PWD}}/.kube"
     state: directory
-    mode: 0755
-    owner: vagrant
+    mode: '0755'
+    owner: "{{ansible_user}}"
+    group: "{{ansible_user}}"
 
 - name: Remove Swapfile from /etc/fstab
   mount:

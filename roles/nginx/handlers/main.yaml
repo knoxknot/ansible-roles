@@ -1,3 +1,10 @@
+---
+# Stop Services
+- name: Stop Nginx
+  service:  
+    name: nginx 
+    state: stopped
+
 # Start Services
 - name: Start Nginx
   service:  

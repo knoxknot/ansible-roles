@@ -1,0 +1,5 @@
+apt_packages_with_version:
+  - 'kubeadm=1.16.0-00'
+  - 'kubectl=1.16.0-00'
+  - 'kubelet=1.16.0-00'
+  - 'kubernetes-cni'

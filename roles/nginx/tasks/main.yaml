@@ -11,9 +11,10 @@
 
 - name: Install Nginx
   apt: 
-   name: nginx=1.15
+   name: nginx=1.17.9-1~{{ansible_lsb.codename}}
    state: present
-   update_cache: yes
+  notify:
+    - Stop Nginx
 
 - name: Create TLS Certificates Directory
   file: 
